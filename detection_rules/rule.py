@@ -178,6 +178,7 @@ class BaseRuleData(MarshmallowDataclassMixin, StackCompatMixin):
     actions: Optional[list]
     author: List[str]
     building_block_type: Optional[str]
+    correlations: Optional[definitions.Correlations]
     description: str
     enabled: Optional[bool]
     exceptions_list: Optional[list]
@@ -271,12 +272,16 @@ class DataValidator:
                  is_elastic_rule: bool,
                  note: Optional[definitions.Markdown] = None,
                  setup: Optional[str] = None,
+                 correlations: Optional[definitions.Correlations] = None,
+                 threat: Optional[List[ThreatMapping]] = None,
                  **extras):
         # only define fields needing additional validation
         self.name = name
         self.is_elastic_rule = is_elastic_rule
         self.note = note
         self.setup = setup
+        self.correlations = correlations
+        self.threat = threat
 
         self._setup_in_note = False
 
@@ -330,6 +335,11 @@ class DataValidator:
         # raise if setup header is in note and in setup
         if self.setup_in_note and self.setup:
             raise ValidationError("Setup header found in both note and setup fields.")
+
+    def validate_correlations(self):
+        # raise if correlations is present but threat is not
+        if self.correlations and not self.threat:
+            raise ValidationError("Correlations require a threat object")
 
 
 @dataclass
@@ -887,6 +897,7 @@ class TOMLRuleContents(BaseRuleContents, MarshmallowDataclassMixin):
 
         data.validate_query(metadata)
         data.data_validator.validate_note()
+        data.data_validator.validate_correlations()
 
     def to_dict(self, strip_none_values=True) -> dict:
         # Load schemas directly from the data and metadata classes to avoid schema ambiguity which can

@@ -82,6 +82,10 @@ TimelineTemplateId = NewType('TimelineTemplateId', str, validate=validate.OneOf(
 TimelineTemplateTitle = NewType('TimelineTemplateTitle', str, validate=validate.OneOf(TIMELINE_TEMPLATES.values()))
 UUIDString = NewType('UUIDString', str, validate=validate.Regexp(UUID_PATTERN))
 
+Correlations = NewType('Correlations', List[UUIDString])
+
+
+
 
 # experimental machine learning features and releases
 MachineLearningType = Literal['DGA', 'ProblemChild']

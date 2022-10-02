@@ -236,6 +236,63 @@ class TestSchemas(unittest.TestCase):
                     process where process.pid == "some string field"
             """)
 
+    def test_correlations_validation(self):
+        base_fields = {
+            "author": ["Elastic"],
+            "description": "test description",
+            "language": "kuery",
+            "name": "test rule",
+            "risk_score": 21,
+            "rule_id": str(uuid.uuid4()),
+            "severity": "low",
+            "type": "query",
+            "query": "event.category:process"
+        }
+
+        def build_rule(data):
+            metadata = {
+                "creation_date": "1970/01/01",
+                "updated_date": "1970/01/01",
+                "min_stack_version": load_current_package_version()
+            }
+            obj = {"metadata": metadata, "rule": data}
+            return TOMLRuleContents.from_dict(obj)
+
+        with self.assertRaises(ValidationError):
+            missing_threat_definition = base_fields.copy()
+            missing_threat_definition["correlations"] = [str(uuid.uuid4()),str(uuid.uuid4())]
+            build_rule(missing_threat_definition)
+
+        with self.assertRaises(ValidationError):
+            invalid_correlation_id = base_fields.copy()
+            invalid_correlation_id["correlations"] = ["this-is-no-uuid"]
+            build_rule(invalid_correlation_id)
+
+        # neither correlations nor threat defined is good
+        build_rule(base_fields.copy())
+
+        # both correlations and threat defined is good
+        correlations_and_threat_defined = base_fields.copy()
+        correlations_and_threat_defined["correlations"] = [str(uuid.uuid4()),str(uuid.uuid4())]
+        correlations_and_threat_defined["threat"] = [
+                {
+                    "framework": "MITRE ATT&CK",
+                    "tactic": {
+                        "id": "TA0001",
+                        "name": "Execution",
+                        "reference": "https://attack.mitre.org/tactics/TA0001/"
+                    },
+                    "technique": [
+                        {
+                            "id": "T1059",
+                            "name": "Command and Scripting Interpreter",
+                            "reference": "https://attack.mitre.org/techniques/T1059/",
+                        }
+                    ],
+                }
+            ]
+        build_rule(correlations_and_threat_defined)
+
 
 class TestVersionLockSchema(unittest.TestCase):
     """Test that the version lock has proper entries."""
