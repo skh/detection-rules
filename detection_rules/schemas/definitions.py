@@ -53,11 +53,13 @@ TIMELINE_TEMPLATES: Final[dict] = {
 
 
 NonEmptyStr = NewType('NonEmptyStr', str, validate=validate.Length(min=1))
+ValidUUIDStr = NewType('ValidUUIDStr', str, validate=validate.Regexp(UUID_PATTERN))
 
 BranchVer = NewType('BranchVer', str, validate=validate.Regexp(BRANCH_PATTERN))
 CardinalityFields = NewType('CardinalityFields', List[NonEmptyStr], validate=validate.Length(min=0, max=3))
 CodeString = NewType("CodeString", str)
 ConditionSemVer = NewType('ConditionSemVer', str, validate=validate.Regexp(CONDITION_VERSION_PATTERN))
+Correlations = NewType('Correlations', List[ValidUUIDStr])
 Date = NewType('Date', str, validate=validate.Regexp(DATE_PATTERN))
 FilterLanguages = Literal["kuery", "lucene"]
 Interval = NewType('Interval', str, validate=validate.Regexp(INTERVAL_PATTERN))
@@ -80,9 +82,8 @@ TechniqueURL = NewType('TechniqueURL', str, validate=validate.Regexp(TECHNIQUE_U
 ThresholdValue = NewType("ThresholdValue", int, validate=validate.Range(min=1))
 TimelineTemplateId = NewType('TimelineTemplateId', str, validate=validate.OneOf(list(TIMELINE_TEMPLATES)))
 TimelineTemplateTitle = NewType('TimelineTemplateTitle', str, validate=validate.OneOf(TIMELINE_TEMPLATES.values()))
-UUIDString = NewType('UUIDString', str, validate=validate.Regexp(UUID_PATTERN))
+UUIDString = NewType('UUIDString', ValidUUIDStr)
 
-Correlations = NewType('Correlations', List[UUIDString])
 
 
 
