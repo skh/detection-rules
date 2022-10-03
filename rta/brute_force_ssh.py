@@ -35,15 +35,16 @@ def main(remote_host=None):
         common.log("A remote host is required to detonate this RTA", "!")
         return common.MISSING_REMOTE_HOST
 
-    common.enable_logon_auditing(remote_host)
+    # nope, not available on linux
+    # common.enable_logon_auditing(remote_host)
 
     common.log("Brute forcing login with invalid password against root@{}".format(remote_host))
 
-    command = ["sshpass", "-p", "NotThePassword", "root@{}".format(remote_host)] # root hardcoded. could be expanded to also test non-privileged accounts
+    command = ["sshpass", "-p", "NotThePassword", "ssh", "root@{}".format(remote_host)] # root hardcoded. could be expanded to also test non-privileged accounts
 
-    # fail 4 times - the first 3 concurrently and wait for the final to complete
-    for i in range(4):
-        common.execute(command, wait=i == 3)
+    # try 10 times - the first 9 concurrently and wait for the final to complete
+    for i in range(10):
+        common.execute(command, wait=(i==9))
 
     # allow time for audit event to process
     time.sleep(2)
