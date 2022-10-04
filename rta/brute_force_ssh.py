@@ -19,7 +19,7 @@ from . import RtaMetadata
 
 
 metadata = RtaMetadata(
-    uuid="a5f0d057-d540-44f5-924d-c6a2ae92f045", # this was created in a python shell with uuid.uuid4() -- proper way?
+    uuid="bc88e8ab-0aff-4d74-a0e1-73ed489893ce", # this was created in a python shell with uuid.uuid4() -- proper way?
     platforms=["linux"],
     endpoint=[],
     siem=[
